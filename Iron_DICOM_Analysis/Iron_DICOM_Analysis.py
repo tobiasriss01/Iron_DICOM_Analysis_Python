@@ -27,7 +27,7 @@ path =  "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/2024_03_ZM202
 csv_file_path = 'E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/ROI_Values.csv'
 
 with  open(csv_file_path, mode='w', newline='') as file:
-    file.write("Filename ;Solution   ;Concentration  ;Diameter     ;Mean of ROI   ;Standard deviation   \n")
+    file.write("Filename ;Mode  ;Solution   ;Concentration  ;Diameter     ;Mean of ROI   ;Standard deviation   \n")
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -66,6 +66,7 @@ for file in os.listdir(directory):
 
         patientName = str(ds.PatientName)
         list_firstandlastname = patientName.split("^")
+        mode = "have to find"
 
         if len(list_firstandlastname[0]) == 6:
             solution = "Fe"
@@ -138,7 +139,7 @@ for file in os.listdir(directory):
         #Create and write in .csv file
 
         with  open(csv_file_path, mode='a', newline='') as file:
-            string = filename +";"+solution + ";" + concentration + ";" + ph_diameter + ";" + str(round_mean) + ";" + str(round_stddev) + "\n";    #see line 25 : ("Solution   ;Concentration  ;Diameter     ;Mean of ROI   ;Standard deviation   \n")
+            string = filename +";"+ mode + ";" +solution + ";" + concentration + ";" + ph_diameter + ";" + str(round_mean) + ";" + str(round_stddev) + "\n";    #see line 25 : ("Solution   ;Concentration  ;Diameter     ;Mean of ROI   ;Standard deviation   \n")
             file.write(string) 
 
 
