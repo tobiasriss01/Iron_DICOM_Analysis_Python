@@ -5,38 +5,29 @@ import csv
 import math
 import numpy as np
 import matplotlib.pyplot as plt 
+import time 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #++++++++++++   INITIAL DEFINITIONS +++++++++++++++++
 
 # Define the center coordinates and radius of the circular area
-center = (319, 319)
-radius = 17
+radius = 15
 
 
-#define directory path where all DICOM Images are stored
-directory_in_str = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/2024_03_ZM202_FE_10cm/"
+#define directory path where all DICOM Images are stored 
+directory_in_str = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/CntLowEnergyVolume/SPP_CntLowEnergyVolume/"
 directory = os.fsencode(directory_in_str)
 
-path =  "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/2024_03_ZM202_FE_10cm/Fe-DTPA10cm_2mg.CT.FeInsertTests(A.5.25.2024.03.26.15.52.13.798.58617420.dcm"
-
+path =  "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/LowHigh_images/SPP_PrimaryRepresentation/Fe10cm_0mg_ml.CT.CaInsertTests_V.2.11.2024.03.28.15.09.16.931.72719327.dcm"
 
 
 #Create and write in .csv file
 
-csv_file_path = 'E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/ROI_Values.csv'
+
+csv_file_path = 'E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/ROI_Values_Low.csv'
 
 with  open(csv_file_path, mode='w', newline='') as file:
-    file.write("Filename ;Mode  ;Solution   ;Concentration  ;Diameter     ;Mean of ROI   ;Standard deviation   \n")
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
-
-
-
+    file.write("Filename;Mode;Energy;Solution;Concentration;Diameter;Mean of ROI;Standard deviation\n")
 
 
 
@@ -46,27 +37,33 @@ with  open(csv_file_path, mode='w', newline='') as file:
 
 for file in os.listdir(directory):
     filename = os.fsdecode(file)
+
+   
+    
     if filename.endswith(".dcm") or filename.endswith(".py"): 
         filepath = directory_in_str + filename
         ds = pydicom.dcmread(filepath)
         
+        dicom_hu = ds.pixel_array * ds.RescaleSlope + ds.RescaleIntercept
         try:
             dicom_hu = ds.pixel_array * ds.RescaleSlope + ds.RescaleIntercept
         except:
-            print(filename)
+            print("Error")
             continue
 
-        # print(os.path.join(directory, filename))
+     
         
    
 
 
-    ##############################################################################
-    #Get necessary information from the header                   -> get list: https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_6.html
+        ##############################################################################
+        #Get necessary information from the header                   -> get list: https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_6.html
 
         patientName = str(ds.PatientName)
+        
         list_firstandlastname = patientName.split("^")
-        mode = "have to find"
+        energy = str(ds.ImageComments)
+        mode = str(ds.SeriesDescription)
 
         if len(list_firstandlastname[0]) == 6:
             solution = "Fe"
@@ -83,15 +80,28 @@ for file in os.listdir(directory):
         try:
             concentration = list_firstandlastname[1]
         except:
-            print("There is at least one file with a missing concentration")
+            print("There is at least one file with a missing concentration :" + filename )
             concentration = "No concentration given" 
             continue
    
 
-
-
+  
         ##############################################################################
-        #Get Pixles and calculate mean and stand dev:
+        #Get Pixles and calculate mean and stand dev:    
+        if  ph_diameter == "15cm":
+       
+            center = (319, 302)
+
+        elif ph_diameter == "40cm":
+       
+            center = (316, 320)
+
+        else:
+
+                center = (319, 319)
+
+                    
+            
 
         # Create a meshgrid to get the coordinates of all pixels
         x, y = np.meshgrid(np.arange(dicom_hu.shape[0]), np.arange(dicom_hu.shape[1]))
@@ -112,7 +122,11 @@ for file in os.listdir(directory):
         for i in pixels_list:
             sum_list = i + sum_list
 
-        mean = sum_list / length_list
+        if length_list == 0:
+            mean = 0
+            print("There are no values in the list: " + filename)
+        else:
+            mean = sum_list / length_list
         round_mean = round(mean , 3)
 
         #Calculate standard deviation:
@@ -121,6 +135,7 @@ for file in os.listdir(directory):
             sd_sum = sd_sum + (i - mean)**2
         stddev = math.sqrt(sd_sum/(length_list - 1))
         round_stddev = round(stddev , 3)
+
 
 
         ##############################################################################
@@ -139,12 +154,20 @@ for file in os.listdir(directory):
         #Create and write in .csv file
 
         with  open(csv_file_path, mode='a', newline='') as file:
-            string = filename +";"+ mode + ";" +solution + ";" + concentration + ";" + ph_diameter + ";" + str(round_mean) + ";" + str(round_stddev) + "\n";    #see line 25 : ("Solution   ;Concentration  ;Diameter     ;Mean of ROI   ;Standard deviation   \n")
+            string = filename +";"+ mode + ";" + energy + ";" + solution + ";" + concentration + ";" + ph_diameter + ";" + str(round_mean) + ";" + str(round_stddev) + "\n";    #see line 25 : ("Solution   ;Concentration  ;Diameter     ;Mean of ROI   ;Standard deviation   \n")
             file.write(string) 
 
 
-        # Display the overlaid image
+        #Display the overlaid image
+        # Show the plot
         #plt.show()
+
+        # Pause for 2 seconds
+        #plt.pause(0.5)
+
+        # Close the plot window
+        #plt.close()
+       
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
