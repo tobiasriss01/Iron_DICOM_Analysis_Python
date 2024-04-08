@@ -1,4 +1,5 @@
 
+#Program takes low or high image folder and creates csv file containing all relevant information of all dicom files for further processing
 import pydicom 
 import os
 import csv
@@ -11,7 +12,7 @@ import time
 #++++++++++++   INITIAL DEFINITIONS +++++++++++++++++
 
 # Define the center coordinates and radius of the circular area
-radius = 15
+radius = 16
 
 
 #define directory path where all DICOM Images are stored 
@@ -95,6 +96,13 @@ for file in os.listdir(directory):
         elif ph_diameter == "40cm":
        
             center = (316, 320)
+
+            if solution == "Fe-DTPA" and concentration == "10mg/ml":
+                 center = (327, 290)
+
+        elif ph_diameter == "35cm" and solution == "Fe-DTPA" and concentration == "10mg/ml":
+          
+            center = (320, 290)
 
         else:
 
