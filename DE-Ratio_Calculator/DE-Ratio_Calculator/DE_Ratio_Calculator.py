@@ -4,11 +4,11 @@ import pandas as pd
 
 
 # File path to your CSV file
-filepath_low = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/ROI_Values_Low.csv"
-filepath_high = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/ROI_Values_High.csv"
+filepath_low = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/ROI_Liver_Values_Low.csv"
+filepath_high = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/ROI_Liver_Values_High.csv"
 
-filepath_mean_low = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/Calculated_Means_Low.csv"
-filepath_mean_high = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/Calculated_Means_High.csv"
+filepath_mean_low = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/Calculated_Liver_Means_Low.csv"
+filepath_mean_high = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/Calculated_Liver_Means_High.csv"
 
 
 

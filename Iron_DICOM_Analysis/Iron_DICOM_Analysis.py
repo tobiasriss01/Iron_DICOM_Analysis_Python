@@ -167,8 +167,8 @@ for file in os.listdir(directory):
 
 
         #Display the overlaid image
-        # Show the plot
-        #plt.show()
+        #Show the plot
+        plt.show()
 
         # Pause for 2 seconds
         #plt.pause(0.5)
