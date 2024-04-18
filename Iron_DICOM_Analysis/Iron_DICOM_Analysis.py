@@ -46,6 +46,7 @@ for file in os.listdir(directory):
         ds = pydicom.dcmread(filepath)
         
         dicom_hu = ds.pixel_array * ds.RescaleSlope + ds.RescaleIntercept
+ 
         try:
             dicom_hu = ds.pixel_array * ds.RescaleSlope + ds.RescaleIntercept
         except:
