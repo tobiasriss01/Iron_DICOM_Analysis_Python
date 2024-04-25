@@ -15,17 +15,17 @@ from pydicom.dataset import Dataset
 
 #Liver Water Line:
 liver_x = 1
-liver_y = 1.195
+liver_y = 1.155
 
 #Liver Iron line
 liver_iron_x = 1
-liver_iron_y = 2.178
+liver_iron_y = 2.02
 
 
 
 #filepath_ME = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/2024_03_28_ZM202_FE_sol/Fe-DTPA20cm_10m.CT.FeInsertTests(A.2.15.2024.03.28.15.09.16.931.72748928.dcm"
-filepath_HIGH = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/2024_04_08_LiverSample_LOW_HIGH/SPP_CntHighEnergyVolume/IronLiver_1_25m.CT.CaInsertTests(A.5.55.2024.04.08.14.15.52.409.39375416.dcm"
-filepath_LOW = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/2024_04_08_LiverSample_LOW_HIGH/SPP_CntLowEnergyVolume/IronLiver_1_25m.CT.CaInsertTests(A.5.55.2024.04.08.14.15.52.409.39375416.dcm"
+filepath_HIGH = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/2024_04_23_ZM202_IronLiver_etc/IronLiver_multiple_LH/SPP_CntHighEnergyVolume/IronLiver_all_1.CT.FeInsertTests(A.2.1.2024.04.23.09.51.28.404.65539006.dcm"
+filepath_LOW = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/2024_04_23_ZM202_IronLiver_etc/IronLiver_multiple_LH/SPP_CntLowEnergyVolume/IronLiver_all_1.CT.FeInsertTests(A.2.1.2024.04.23.09.51.28.404.65539006.dcm"
 
 #Extracts Array in greyscale values
 #dicom_ME = pydicom.dcmread(filepath_ME)
@@ -89,52 +89,51 @@ elif mode == "Spine 70/Sn150 2.00 Qr40 Q3  HIGH":
 
 
 #create removed iron image
-if True:
+if False:
 
     # Convert to float
-    img_2d = px_array_ME.astype(float)
+    img_2d = no_iron_array_ME.astype(float)
+
+
+
 
     # Rescale the values
-    min_value = -500
-    max_value = 400
+    min_value = -40
+    max_value = 200
     img_2d_scaled = np.clip((img_2d - min_value) / (max_value - min_value) * 250, 0, 250)
+    px_array_ME_scaled = np.clip((px_array_ME - min_value) / (max_value - min_value) * 250, 0, 250)
 
-    # Convert to uint8
-    img_2d_scaled = np.uint8(img_2d_scaled)
-
-    
-    # Create a mask of zero values in the original image
-    zero_mask = img_2d_scaled == 0
-
+    #Create a mask of zero values in the original image
+    zero_mask = px_array_ME_scaled == 0
     # Convert the mask to uint8 with value 0 where zeros are present
     zero_mask = zero_mask.astype(np.uint8) * 255
 
 
+    #replace air of img_2d_scaled with water for further processing
+    img_2d_scaled[img_2d_scaled == 0] = 40
+
+    
+    # Convert to uint8
+    blur = np.uint8(img_2d_scaled)
+
+
     # Apply blur filter
-    blur = cv2.medianBlur(img_2d_scaled,5)
-    for i in range(100):
-        blur = cv2.medianBlur(blur,5)
-
-
-    # Rescale the values
-    min_value = 0
-    max_value = 500
-    blur = np.clip((blur - min_value) / (max_value - min_value) * 250, 0, 250)
-
-
+    blur = cv2.medianBlur(blur,5)
+    for i in range(2):
+      blur = cv2.medianBlur(blur,5)
 
     # Overlay the zero values of the original image onto the filtered image
-    blur = np.uint8(blur)
     final_image = cv2.bitwise_or(blur, zero_mask)
 
     final_image[final_image == 255] = 0
 
-    final_image =  cv2.blur(final_image, (3, 3))
+    
+
 
     # Display images using matplotlib with color
-    plt.subplot(131), plt.imshow(img_2d_scaled, cmap='viridis'), plt.title('Original')
+    plt.subplot(131), plt.imshow(px_array_ME_scaled, cmap='viridis'), plt.title('Original ME')
     plt.xticks([]), plt.yticks([])
-    plt.subplot(132), plt.imshow(blur, cmap='viridis'), plt.title('Averaging')
+    plt.subplot(132), plt.imshow(blur, cmap='viridis'), plt.title('Iron removed')
     plt.xticks([]), plt.yticks([])
     plt.subplot(133), plt.imshow(final_image, cmap='viridis'), plt.title('Final Image')
     plt.xticks([]), plt.yticks([])
@@ -143,30 +142,61 @@ if True:
   
    
 
-#var2[var2 < 0] = 0
-#greyscale_px_array_ME = (var2 - dicom_HIGH.RescaleIntercept)/dicom_HIGH.RescaleSlope
 
 #Create only iron image
-if False:
-    var2[var2 < 0] = 0
-  # Calculate iron content differences
-    px_array_iron_content_HIGH = px_array_HIGH - px_array_HIGH_no_iron
-    px_array_iron_content_LOW = px_array_LOW - px_array_LOW_no_iron
+if True:
+   
+    # Convert to float
+    img_2d = only_iron_array_ME.astype(float)
+    
 
     # Rescale the values
-    min_value = 0
-    max_value = 300
-    # Scale the iron content differences for visualization
-    scaled_high = np.clip((var2 - min_value) / (max_value - min_value) * 255, 0, 255)
-    scaled_low = np.clip((var2 - min_value) / (max_value - min_value) * 255, 0, 255)
+    min_value = -40
+    max_value = 150
+    img_2d_scaled = np.clip((img_2d - min_value) / (max_value - min_value) * 250, 0, 250)
+    px_array_ME_scaled = np.clip((px_array_ME - min_value) / (max_value - min_value) * 250, 0, 250)
+    img_2d_scaled[´ö == 250] = 0
 
-    # Create empty RGB image
-    height, width = var2.shape
-    rgb_image = np.zeros((height, width, 3), dtype=np.uint64)
+    #Create a mask of zero values in the original image
+    zero_mask = px_array_ME_scaled == 0
+    # Convert the mask to uint8 with value 0 where zeros are present
+    zero_mask = zero_mask.astype(np.uint8) * 255
 
-    # Assign iron content differences to respective channels
- 
-    rgb_image[:,:,0] = var2
+
+    
+    # Convert to uint8
+    blur = np.uint8(img_2d_scaled)
+
+
+    # Apply blur filter
+    blur = cv2.medianBlur(blur,5)
+    for i in range(2):
+      blur = cv2.medianBlur(blur,5)
+
+  
+
+    # Overlay the zero values of the original image onto the filtered image
+    final_image = cv2.bitwise_or(blur, zero_mask)
+
+    final_image[final_image == 255] = 0
+
+    
+
+    # Rescale the values
+    min_value = -40
+    max_value = 150
+    final_image = np.clip((final_image - min_value) / (max_value - min_value) * 250, 0, 250)
+
+
+    # Display images using matplotlib with color
+    plt.subplot(131), plt.imshow(px_array_ME_scaled, cmap='viridis'), plt.title('Original ME')
+    plt.xticks([]), plt.yticks([])
+    plt.subplot(132), plt.imshow(blur, cmap='viridis'), plt.title('Iron removed')
+    plt.xticks([]), plt.yticks([])
+    plt.subplot(133), plt.imshow(final_image, cmap='viridis'), plt.title('Final Image')
+    plt.xticks([]), plt.yticks([])
+    plt.colorbar()
+    plt.show()
   
 
    

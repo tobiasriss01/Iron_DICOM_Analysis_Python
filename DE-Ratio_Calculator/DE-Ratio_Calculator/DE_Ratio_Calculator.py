@@ -15,12 +15,12 @@ filepath_mean_high = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/Ca
 # Load the data from the CSV file
 # You may need to adjust additional parameters such as delimiter, encoding, etc., based on your CSV file.
 pd_table_low = pd.read_csv(filepath_low, sep=';', engine='python')
-mean_values_low = pd_table_low.groupby(['Solution', 'Concentration', 'Diameter', 'Mode'])['Mean of ROI'].mean()
+mean_values_low = pd_table_low.groupby(['Solution', 'Concentration', 'Diameter', 'Mode'])[['Mean of ROI', 'Standard deviation', ' Standard error of mean']].mean()
 
 mean_values_low.to_csv(filepath_mean_low, sep=';')
 
 pd_table_high = pd.read_csv(filepath_high, sep=';', engine='python')
-mean_values_high = pd_table_high.groupby(['Solution', 'Concentration', 'Diameter', 'Mode'])['Mean of ROI'].mean()
+mean_values_high = pd_table_high.groupby(['Solution', 'Concentration', 'Diameter', 'Mode'])[['Mean of ROI', 'Standard deviation', ' Standard error of mean']].mean()
 
 mean_values_high.to_csv(filepath_mean_high, sep=';')
 
@@ -42,7 +42,7 @@ h_table['Mode'] = h_table['Mode'].replace('Spine 70/Sn150 2.00 Qr40 Q3  HIGH', '
 h_table['Mode'] = h_table['Mode'].replace('Spine 90/Sn150 2.00 Qr40 Q3  HIGH', 'Spine 90/Sn150 2.00 Qr40 Q3')
 
 
-merged_table = pd.merge(l_table, h_table[['Solution', 'Concentration', 'Diameter', 'Mode', 'Mean of ROI']], on=['Solution', 'Concentration', 'Diameter', 'Mode'], how='outer')
+merged_table = pd.merge(l_table, h_table[['Solution', 'Concentration', 'Diameter', 'Mode', 'Mean of ROI' , 'Standard deviation', ' Standard error of mean']], on=['Solution', 'Concentration', 'Diameter', 'Mode'], how='outer')
 merged_table.rename(columns={'Mean of ROI_x': 'Low Energy Values'}, inplace=True)
 merged_table.rename(columns={'Mean of ROI_y': 'High Energy Values'}, inplace=True)
 #merged_table.drop(columns=['Energy'], inplace=True)

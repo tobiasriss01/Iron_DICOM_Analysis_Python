@@ -10,11 +10,11 @@ import time
 #++++++++++++   INITIAL DEFINITIONS +++++++++++++++++
 
 # Define the center coordinates and radius of the circular area
-radius = 23
+#radius = 23
 
 
 #define directory path where all DICOM Images are stored 
-directory_in_str = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/2024_04_08_LiverSample_LOW_HIGH/SPP_CntLowEnergyVolume/"
+directory_in_str = "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/2024_04_23_ZM202_IronLiver_etc/IronLiver_LH/SPP_CntHighEnergyVolume/"
 directory = os.fsencode(directory_in_str)
 
 path =  "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/LowHigh_images/SPP_PrimaryRepresentation/Fe10cm_0mg_ml.CT.CaInsertTests_V.2.11.2024.03.28.15.09.16.931.72719327.dcm"
@@ -23,10 +23,10 @@ path =  "E:/UserData/z004x2zj/Documents/Iron_Code/Iron_DICOM_Files/LowHigh_image
 #Create and write in .csv file
 
 
-csv_file_path = 'E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/ROI_Liver_Values_Low.csv'
+csv_file_path = 'E:/UserData/z004x2zj/Documents/Iron_Code/Iron_CSV_Files/ROI_Liver_Values_High.csv'
 
 with  open(csv_file_path, mode='w', newline='') as file:
-    file.write("Filename;Mode;Energy;Solution;Concentration;Diameter;Mean of ROI;Standard deviation\n")
+    file.write("Filename;Mode;Energy;Solution;Concentration;Diameter;Mean of ROI;Standard deviation; Standard error of mean\n")
 
 
 
@@ -64,11 +64,11 @@ for file in os.listdir(directory):
         mode = str(ds.SeriesDescription)
         nameList = patientName.split("^")
 
-        if patientName[10] == "1":
+        if patientName[10] == "s":
             ph_diameter = "small"
             concentration = nameList[1][0:2]
 
-        elif patientName[10] == "2":
+        elif patientName[10] == "l":
             ph_diameter = "large"
             concentration = nameList[1][0:2] 
 
@@ -77,11 +77,12 @@ for file in os.listdir(directory):
    
         concentration = concentration.strip("m")
         if ph_diameter == "small":
-            radius = 23
-            center = (257, 265)
+            radius = 19
+            center = (250, 346)
         elif  ph_diameter == "large":
-            radius = 13
-            center = (277, 186)
+            radius = 19
+            center = (259, 328)
+            
 
 
         # Create a meshgrid to get the coordinates of all pixels
@@ -117,6 +118,8 @@ for file in os.listdir(directory):
         stddev = math.sqrt(sd_sum/(length_list - 1))
         round_stddev = round(stddev , 3)
 
+        std_err_mean = stddev / math.sqrt(length_list)
+        round_std_err_mean = round(std_err_mean , 3)
 
 
         ##############################################################################
@@ -135,14 +138,14 @@ for file in os.listdir(directory):
         #Create and write in .csv file
 
         with  open(csv_file_path, mode='a', newline='') as file:
-            string = filename +";"+ mode + ";" + energy + ";" + solution + ";" + concentration + ";" + ph_diameter + ";" + str(round_mean) + ";" + str(round_stddev) + "\n";    #see line 25 : ("Solution   ;Concentration  ;Diameter     ;Mean of ROI   ;Standard deviation   \n")
+            string = filename +";"+ mode + ";" + energy + ";" + solution + ";" + concentration + ";" + ph_diameter + ";" + str(round_mean) + ";" + str(round_stddev) + ";" +   str(round_std_err_mean) + "\n";    #see line 25 : ("Solution   ;Concentration  ;Diameter     ;Mean of ROI   ;Standard deviation   \n")
             file.write(string) 
 
 
         #Display the overlaid image
         # Show the plot
        # if ph_diameter == "large":
-        #    plt.show()
+        #plt.show()
 
         # Pause for 2 seconds
         #plt.pause(0.5)
